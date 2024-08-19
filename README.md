@@ -1,3 +1,5 @@
 Batch scripts
 
-modified.bat - modified dates from filenames, useful for example Plex release dates for personal files.
+modified.bat - modified dates from filenames, example usage correct release dates for personal files in Plex.
+
+yt-dlp-loop.bat - uses yt-dlp (https://github.com/yt-dlp/yt-dlp) to download sequentially numbered video files.
