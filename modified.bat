@@ -23,3 +23,4 @@ for %%F in ("*.!ext!") do (
 )
 
 echo Done
+endlocal
