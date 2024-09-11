@@ -13,7 +13,7 @@ for %%F in ("*.!ext!") do (
     set "year=!filename:~0,4!"
     set "month=!filename:~4,2!"
     set "day=!filename:~6,2!"
-    set "newname=(!year!-!month!-!day!) something.%%~xF"
+    set "newname=(!year!-!month!-!day!) something%%~xF"
 
     echo modifying file !filename!.!ext!
     echo !newname!
