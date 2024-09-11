@@ -9,6 +9,7 @@ for %%F in ("*.!ext!") do (
     REM Extract year, month and day from filename formatted as "(2024-08-19) something.mp4"
     set "filename=%%~nF"
 
+    REM set "month=!filename:~6,2!" start from index 6 and get 2 characters
     set "year=!filename:~1,4!"
     set "month=!filename:~6,2!"
     set "day=!filename:~9,2!"
