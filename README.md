@@ -11,3 +11,5 @@ clean.bat - uses ffmpeg to create a clean copy of a video file for further conve
 clean2sbs - uses ffmpeg to convert clean copy of frame sequential 3d to a side-by-side in av1 format at 3000kbps using nvidia hardware
 seq2sbs.bat - clean.bat + clea2sbs.bat in a same + deletes the clean file after conversion
 mp4tomkv.bat - uses ffmpeg to convert mp4 to mkv
+
+autoencode.bat uses ffmpeg to convert selected filetypes to mkv
