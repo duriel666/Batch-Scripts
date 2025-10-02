@@ -7,7 +7,7 @@ REM Usage: just run in folder
 
 REM Set filetype and 1080p bitrate (bitrate is set value + 200)
 set "filetypes=mp4 mkv avi mov wmv mpg mpeg"
-set "1080p=400"
+set "1080p=450"
 set "folder=new"
 
 pushd "%~dp0" || (
@@ -16,10 +16,10 @@ pushd "%~dp0" || (
     exit /b 1
 )
 
-mkdir "%folder%" 2>nul
+mkdir "!folder!" 2>nul
 echo Processing all %filetypes% files...
 
-for %%E in (%filetypes%) do (
+for %%E in (!filetypes!) do (
     set "ext=%%~xF"
     set "ext=!ext:~1!"
     for %%F in (*%%E) do (
@@ -47,7 +47,7 @@ for %%E in (%filetypes%) do (
         if "!channels!"=="7" set "audiobitrate=224"
         if "!channels!"=="8" set "audiobitrate=256"
 
-        set /a videobitrate=pixels * !1080p! / 2073 + 200
+        set /a videobitrate=pixels * !1080p! / 2073 + 150
         echo Video bitrate: !videobitrate!k
         echo Audio bitrate: !audiobitrate!k
 
@@ -57,5 +57,5 @@ for %%E in (%filetypes%) do (
 
 del video.txt audio.txt 2>nul
 echo Done
+popd
 endlocal
-pause

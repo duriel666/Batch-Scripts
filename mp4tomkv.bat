@@ -17,4 +17,5 @@ for %%F in (*.mp4) do (
 )
 
 echo Done
+popd
 endlocal

@@ -20,4 +20,5 @@ for %%F in (*.mkv) do (
 )
 
 echo Done
+popd
 endlocal
