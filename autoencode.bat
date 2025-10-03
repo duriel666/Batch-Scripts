@@ -45,8 +45,10 @@ REM Process a single file
 :process_file
 set "file=%~1"
 set "name=%~n1"
-call set "start_time=%time%"
-set "timestamp=%date%"
+call set "start_time=!time!"
+echo start_time: !start_time!
+set "timestamp=!date!"
+echo timestamp: !timestamp!
 set "audio_opts="
 set "audio_maps=-map 0:a"
 set "subtitle_maps="
@@ -175,13 +177,47 @@ if errorlevel 1 (
     goto :eof
 )
 
-REM Log output size
-set "size=%~z1"
+echo Encoding completed, validating output...
 
+REM Get input and output sizes
+set "input_size=%~z1"
+echo Input size: !input_size! bytes
 for %%S in ("!folder!\!name!.mkv") do set "output_size=%%~zS"
+echo Output size: !output_size! bytes
 
-set /a size_kb=!size! / 1024
-set /a output_kb=!output_size! / 1024
+REM Approximate KB by removing last 3 digits
+set "input_kb=!input_size:~0,-3!"
+echo Input size: !input_kb! KB
+set "output_kb=!output_size:~0,-3!"
+echo Output size: !output_kb! KB
+
+REM Fallback if string is too short or non-numeric
+for %%V in (input_kb output_kb) do (
+    set /a dummy=!%%V! + 0 2>nul
+    if errorlevel 1 set "%%V=0"
+)
+echo Validated Input size: !input_kb! KB
+echo Validated Output size: !output_kb! KB
+
+REM Convert to MB for logging, use 1049 for more accurate conversion
+set "input_mb=0"
+set "output_mb=0"
+
+set /a dummy=!input_kb! + 0 2>nul
+if not errorlevel 1 (
+    set /a input_mb=!input_kb! / 1049
+) else (
+    set "input_kb=0"
+)
+echo Validated Input size: !input_mb! MB
+
+set /a dummy=!output_kb! + 0 2>nul
+if not errorlevel 1 (
+    set /a output_mb=!output_kb! / 1049
+) else (
+    set "output_kb=0"
+)
+echo Validated Output size: !output_mb! MB
 
 REM Validate output file
 if "!output_size!"=="0" (
@@ -190,36 +226,54 @@ if "!output_size!"=="0" (
     call :log_error "Output file was 0 bytes and was deleted"
     goto :eof
 )
+echo Output file size is non-zero
 
-if !output_size! gtr !size! (
+REM Compare sizes using validated KB values
+if !output_kb! gtr !input_kb! (
     echo Output file is larger than input, deleting "!folder!\!name!.mkv"
     del "!folder!\!name!.mkv"
     call :log_error "Output file was larger than input and was deleted"
     goto :eof
 )
+echo Output file size is less than or equal to input
 
 REM Get file durations
 ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!file!" > durations.txt
+echo Input duration logged
 ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!folder!\!name!.mkv" >> durations.txt
+echo Output duration logged
 
 REM Read durations
 set "line=0"
+set "input_sec=0"
+set "output_sec=0"
 for /f "tokens=1 delims=." %%I in (durations.txt) do (
     if "!line!"=="0" set /a "input_sec=%%I"
     if "!line!"=="1" set /a "output_sec=%%I"
     set /a line+=1
 )
+echo Input duration: !input_sec! seconds
+echo Output duration: !output_sec! seconds
 
-REM Check if drift is over 10 seconds
+REM Check if drift is over 5 seconds
 set /a drift=input_sec - output_sec
-if !drift! gtr 10 (
-    echo Output duration is too short (drift: !drift!s), deleting "!folder!\!name!.mkv"
+echo Initial drift calculation: !drift! seconds
+set "drift_str=!drift!"
+if "!drift_str:~0,1!"=="-" (
+    set "drift_str=!drift_str:~1!"
+)
+set /a drift=!drift_str!
+echo Final drift: !drift! seconds
+if !drift! gtr 5 (
+    echo Drift over 5 seconds, deleting "!folder!\!name!.mkv"
     del "!folder!\!name!.mkv"
-    call :log_error "Drift: !drift!s - Input (!input_sec!s) --- Output (!output_sec!s)"
+    set "logmsg=Drift: !drift!s - Input !input_sec!s --- Output !output_sec!s"
+    call :log_error "!logmsg!"
     goto :eof
 )
-
-call set "end_time=%time%"
+echo Duration drift: !drift! seconds
+call set "end_time=!time!"
+echo Validation successful, logging results...
 
 REM Log success
 (
@@ -227,8 +281,8 @@ REM Log success
     echo Command:  ffmpeg -i "!file!" ...
     echo Date:  !timestamp!
     echo Time:  !start_time! --- !end_time!
-    echo Input size:  !size_kb! KB --- !size! bytes
-    echo Output size:  !output_kb! KB --- !output_size! bytes
+    echo Input size:  !input_mb! MB --- !input_size! bytes
+    echo Output size:  !output_mb! MB --- !output_size! bytes
     echo Input duration:  !input_sec! seconds
     echo Output duration:  !output_sec! seconds
     echo Duration drift: !drift! seconds
@@ -245,7 +299,7 @@ rem move "!file!" "!folder2!" 2>nul
 goto :eof
 
 :log_error
-call set "end_time=%time%"
+call set "end_time=!time!"
 (
     echo File:  !file!
     echo Error:  %~1
