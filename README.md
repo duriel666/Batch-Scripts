@@ -13,3 +13,4 @@ seq2sbs.bat - clean.bat + clea2sbs.bat in a same + deletes the clean file after 
 mp4tomkv.bat - uses ffmpeg to convert mp4 to mkv
 
 autoencode.bat uses ffmpeg to convert selected filetypes to mkv
+removeaudiolang.bat uses ffmpeg to copy files without excluded language

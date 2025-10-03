@@ -285,9 +285,12 @@ REM Log success
     echo Output size:  !output_mb! MB --- !output_size! bytes
     echo Input duration:  !input_sec! seconds
     echo Output duration:  !output_sec! seconds
-    echo Duration drift: !drift! seconds
+    echo Duration drift:  !drift! seconds
     echo Resolution:  !width! x !height!
     echo Video:  !videobitrate! kbps
+) >> encode_log.txt
+type audio.txt >> encode_log.txt
+(
     echo Audio: !audio_opts!
     echo Audio languages: !audio_langs!
     echo Subtitles: !subtitle_maps!
