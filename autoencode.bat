@@ -56,7 +56,7 @@ set "subtitle_maps="
 echo Checking !file! ...
 
 REM Get resolution
-ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x "!file!" > video.txt
+ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x "!file!" > autoencode_video.txt
 
 REM Check for ffprobe error
 if errorlevel 1 (
@@ -66,7 +66,7 @@ if errorlevel 1 (
 )
 
 REM Read width and height
-for /f "tokens=1,2 delims=x" %%W in (video.txt) do (
+for /f "tokens=1,2 delims=x" %%W in (autoencode_video.txt) do (
     set /a pixels=%%W * %%X / 1000
     set "width=%%W"
     set "height=%%X"
@@ -75,7 +75,7 @@ for /f "tokens=1,2 delims=x" %%W in (video.txt) do (
 set /a videobitrate=pixels * !anchor_bitrate! / 2073 + 150
 
 REM Get audio stream details
-ffprobe -v error -select_streams a -show_entries stream=index,channels,channel_layout:stream_tags=language -of csv=p=0 "!file!" > audio.txt
+ffprobe -v error -select_streams a -show_entries stream=index,channels,channel_layout:stream_tags=language -of csv=p=0 "!file!" > autoencode_audio.txt
 
 REM Check for ffprobe error
 if errorlevel 1 (
@@ -92,7 +92,7 @@ REM Define Opus-safe layouts
 set "opus_safe_layouts=mono stereo 2.1 3.0 3.1 4.0 4.1 5.0 5.1 6.1 7.1"
 
 REM Process each audio stream
-for /f "tokens=1,2,3,4 delims=," %%I in (audio.txt) do (
+for /f "tokens=1,2,3,4 delims=," %%I in (autoencode_audio.txt) do (
     set "idx=%%I"
     set "channels=%%J"
     set "layout=%%K"
@@ -150,11 +150,11 @@ for /f "tokens=1,2,3,4 delims=," %%I in (audio.txt) do (
 )
 
 REM Get subtitle streams
-ffprobe -v error -select_streams s -show_entries stream=index:stream_tags=language -of csv=p=0 "!file!" > subtitles.txt
+ffprobe -v error -select_streams s -show_entries stream=index:stream_tags=language -of csv=p=0 "!file!" > autoencode_subtitles.txt
 set "subtitle_langs="
 set /a s_ord=0
 
-for /f "tokens=1,2 delims=," %%I in (subtitles.txt) do (
+for /f "tokens=1,2 delims=," %%I in (autoencode_subtitles.txt) do (
     set "lang=%%J"
     if /i "!lang!"=="eng" (
         set "subtitle_maps=!subtitle_maps! -map 0:s:!s_ord!"
@@ -162,6 +162,9 @@ for /f "tokens=1,2 delims=," %%I in (subtitles.txt) do (
     ) else if /i "!lang!"=="fin" (
         set "subtitle_maps=!subtitle_maps! -map 0:s:!s_ord!"
         set "subtitle_langs=!subtitle_langs! fin"
+    ) else if /i "!lang!"=="und" (
+        set "subtitle_maps=!subtitle_maps! -map 0:s:!s_ord!"
+        set "subtitle_langs=!subtitle_langs! und"
     )
     set /a s_ord+=1
 )
@@ -238,16 +241,16 @@ if !output_kb! gtr !input_kb! (
 echo Output file size is less than or equal to input
 
 REM Get file durations
-ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!file!" > durations.txt
+ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!file!" > autoencode_durations.txt
 echo Input duration logged
-ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!folder!\!name!.mkv" >> durations.txt
+ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "!folder!\!name!.mkv" >> autoencode_durations.txt
 echo Output duration logged
 
 REM Read durations
 set "line=0"
 set "input_sec=0"
 set "output_sec=0"
-for /f "tokens=1 delims=." %%I in (durations.txt) do (
+for /f "tokens=1 delims=." %%I in (autoencode_durations.txt) do (
     if "!line!"=="0" set /a "input_sec=%%I"
     if "!line!"=="1" set /a "output_sec=%%I"
     set /a line+=1
@@ -288,15 +291,15 @@ REM Log success
     echo Duration drift:  !drift! seconds
     echo Resolution:  !width! x !height!
     echo Video:  !videobitrate! kbps
-) >> encode_log.txt
-type audio.txt >> encode_log.txt
+) >> autoencode_log.txt
+type autoencode_audio.txt >> autoencode_log.txt
 (
     echo Audio: !audio_opts!
     echo Audio languages: !audio_langs!
     echo Subtitles: !subtitle_maps!
     echo Subtitle languages: !subtitle_langs!
     echo.
-) >> encode_log.txt
+) >> autoencode_log.txt
 
 rem move "!file!" "!folder2!" 2>nul
 goto :eof
@@ -309,11 +312,11 @@ call set "end_time=!time!"
     echo Date:  !timestamp! 
     echo Time:  !start_time! --- !end_time!
     echo.
-) >> error_log.txt
+) >> autoencode_error.txt
 goto :eof
 
 :cleanup
-for %%F in (video.txt audio.txt subtitles.txt durations.txt) do if exist %%F del %%F
+for %%F in (autoencode_video.txt autoencode_audio.txt autoencode_subtitles.txt autoencode_durations.txt) do if exist %%F del %%F
 echo Done
 popd
 endlocal

@@ -14,3 +14,4 @@ mp4tomkv.bat - uses ffmpeg to convert mp4 to mkv
 
 autoencode.bat uses ffmpeg to convert selected filetypes to mkv
 removeaudiolang.bat uses ffmpeg to copy files without excluded language
+keepaudiolang.bat uses ffmpeg to copy files with only included languages
