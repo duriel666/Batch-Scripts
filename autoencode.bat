@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Calculates bitrate for video and audio streams
-REM Convert set filetypes with calculated values to av1_nvec/opus mkv files in set folder
+REM Convert files with set filetypes with calculated values to av1_nvec/opus mkv files in set folder
 REM Usage: just run in folder
 REM Note: REM = comments, rem = disabled lines
 

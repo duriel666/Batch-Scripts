@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM Keeps only audio streams of specified languages
+REM Usage: just run in folder
+
 REM Configuration
 set "include_lang=eng fin"
 set "filetypes=mkv"

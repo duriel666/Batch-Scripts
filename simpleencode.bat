@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Simply encode selected filetypes with set video/audio bitrate to av1_nvenc/opus mkv files in set folder
+REM Encode files with set filetypes with set video/audio bitrate to av1_nvenc/opus mkv files in set folder
 REM Usage: just run in folder
 
 REM Configuration

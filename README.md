@@ -1,4 +1,4 @@
-Batch scripts to do random stuff to files
+Batch scripts to do random stuff
 
 modified.bat - modified dates from filenames, example usage correct release dates for personal files in Plex.
 
@@ -12,7 +12,8 @@ clean2sbs - convert clean copy of frame sequential 3d to a side-by-side in av1 f
 seq2sbs.bat - clean.bat + clea2sbs.bat in a same + deletes the clean file after conversion
 mp4tomkv.bat - convert mp4 to mkv
 
-autoencode.bat convert selected filetypes to mkv
-removeaudiolang.bat copy files without excluded language
-keepaudiolang.bat copy files with only included languages
-simpleencode.bat convert all files of selected type
+autoencode.bat - convert selected filetypes to mkv
+removeaudiolang.bat - copy files without excluded language
+keepaudiolang.bat - copy files with only included languages
+simpleencode.bat - convert all files of selected types
+se.bat + attributes - convert all files of selected type

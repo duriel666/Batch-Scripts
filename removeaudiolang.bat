@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Removes audio streams of specified language from mkv files in folder
+REM Removes audio streams of specified language
 REM Usage: just run in folder
 
 REM Configuration
